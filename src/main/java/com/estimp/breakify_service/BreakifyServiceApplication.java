@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class BreakifyServiceApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(BreakifyServiceApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(BreakifyServiceApplication.class, args);
+    }
 
 }
