@@ -20,6 +20,8 @@ public class Notification {
 
     private String title;
 
+    @Lob
+    @Column(columnDefinition = "TEXT")
     private String text;
 
     private String image;

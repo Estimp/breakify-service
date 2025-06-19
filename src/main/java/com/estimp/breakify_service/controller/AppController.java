@@ -3,10 +3,10 @@ package com.estimp.breakify_service.controller;
 import com.estimp.breakify_service.model.App;
 import com.estimp.breakify_service.model.dto.AppWithNotificationsDTO;
 import com.estimp.breakify_service.services.AppService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 
 @RestController
@@ -31,6 +31,19 @@ public class AppController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/username/{username}/packageName/{packageName}")
+    public ResponseEntity<?> findByUserAndPackageName(
+            @PathVariable String username,
+            @PathVariable String packageName
+    ) {
+        try {
+            AppWithNotificationsDTO result = appService.findByUsernameAndPackageName(username, packageName);
+            return result != null ? ResponseEntity.ok(result) : ResponseEntity.notFound().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @PostMapping
     public ResponseEntity<App> save(@RequestBody App app) {
         return ResponseEntity.ok(appService.save(app));
@@ -41,11 +54,13 @@ public class AppController {
             @PathVariable Long id,
             @RequestParam(required = false, defaultValue = "24") int hours
     ) {
-        if (hours < 1) {
-            return ResponseEntity.badRequest().body("The hours must be greater than zero");
+        try {
+            AppWithNotificationsDTO result = appService.getAppWithRecentNotifications(id, hours);
+            return result != null ? ResponseEntity.ok(result) : ResponseEntity.notFound().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
         }
-        ZonedDateTime cutoff = ZonedDateTime.now().minusHours(hours);
-        AppWithNotificationsDTO result = appService.getAppWithRecentNotifications(id, cutoff);
-        return result != null ? ResponseEntity.ok(result) : ResponseEntity.notFound().build();
     }
 }
