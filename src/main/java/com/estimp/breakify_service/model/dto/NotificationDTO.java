@@ -18,7 +18,7 @@ public class NotificationDTO {
 
     private ZonedDateTime timestamp;
 
-    private Long userId;
+    private String username;
 
-    private Long appId;
+    private String packageName;
 }

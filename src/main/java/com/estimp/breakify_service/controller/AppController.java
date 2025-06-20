@@ -2,6 +2,7 @@ package com.estimp.breakify_service.controller;
 
 import com.estimp.breakify_service.model.App;
 import com.estimp.breakify_service.model.dto.AppWithNotificationsDTO;
+import com.estimp.breakify_service.model.dto.CreateAppDTO;
 import com.estimp.breakify_service.services.AppService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
@@ -45,7 +46,7 @@ public class AppController {
     }
 
     @PostMapping
-    public ResponseEntity<App> save(@RequestBody App app) {
+    public ResponseEntity<App> save(@RequestBody CreateAppDTO app) {
         return ResponseEntity.ok(appService.save(app));
     }
 
@@ -61,6 +62,15 @@ public class AppController {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/packageName/{packageName}")
+    public boolean existsPackageName(@PathVariable String packageName) {
+        try {
+            return appService.existsByPackageName(packageName);
+        } catch (Exception e) {
+            return false;
         }
     }
 }

@@ -6,6 +6,7 @@ import com.estimp.breakify_service.model.User;
 import com.estimp.breakify_service.model.dto.NotificationDTO;
 import com.estimp.breakify_service.model.dto.mapper.NotificationMapper;
 import com.estimp.breakify_service.repository.NotificationRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,13 +36,12 @@ public class NotificationService {
     }
 
     public Notification save(NotificationDTO notificationDto) {
-        App app = appService.findById(notificationDto.getAppId())
-                .orElseThrow(() -> new IllegalArgumentException("App no encontrada"));
+        User user = userService.findByUsername(notificationDto.getUsername())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        User user = userService.findById(notificationDto.getUserId())
-                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+        App app = appService.getAppByUserAndPackageName(user, notificationDto.getPackageName());
 
-        Notification notification = NotificationMapper.toEntity(notificationDto,  app, user);
+        Notification notification = NotificationMapper.toEntity(notificationDto, app, user);
         return notificationRepository.save(notification);
     }
 }

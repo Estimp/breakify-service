@@ -8,4 +8,6 @@ import java.util.Optional;
 
 public interface AppRepository extends JpaRepository<App, Long> {
     Optional<App> findByUsersContainingAndPackageName(User user, String packageName);
+    boolean existsByPackageName(String packageName);
+    Optional<App> findByPackageName(String packageName);
 }

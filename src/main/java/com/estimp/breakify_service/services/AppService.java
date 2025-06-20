@@ -4,7 +4,9 @@ import com.estimp.breakify_service.model.App;
 import com.estimp.breakify_service.model.Notification;
 import com.estimp.breakify_service.model.User;
 import com.estimp.breakify_service.model.dto.AppWithNotificationsDTO;
+import com.estimp.breakify_service.model.dto.CreateAppDTO;
 import com.estimp.breakify_service.model.dto.NotificationsInAppDTO;
+import com.estimp.breakify_service.model.dto.mapper.AppMapper;
 import com.estimp.breakify_service.repository.AppRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
@@ -44,7 +46,25 @@ public class AppService {
         return getAppWithRecentNotifications(app.getId());
     }
 
-    public App save(App app) {
+    public App getAppByUserAndPackageName(User user, String packageName) {
+        return appRepository.findByUsersContainingAndPackageName(user, packageName)
+                .orElseThrow(() -> new EntityNotFoundException("App not found"));
+    }
+
+    public App save(CreateAppDTO createAppDTO) {
+        App app = AppMapper.toEntity(createAppDTO);
+
+        if (existsByPackageName(app.getPackageName())) {
+            app = appRepository.findByPackageName(createAppDTO.getPackageName())
+                    .orElseThrow(() -> new EntityNotFoundException("App not found"));
+        }
+
+        User user = userService.findByUsername(createAppDTO.getUsername())
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        app.getUsers().add(user);
+        user.getApps().add(app);
+
         return appRepository.save(app);
     }
 
@@ -64,6 +84,10 @@ public class AppService {
                 .toList();
 
         return new AppWithNotificationsDTO(app.getId(), app.getName(), notificationDTOs);
+    }
+
+    public boolean existsByPackageName(String packageName) {
+        return appRepository.existsByPackageName(packageName);
     }
 
     private AppWithNotificationsDTO getAppWithRecentNotifications(Long appId) {
