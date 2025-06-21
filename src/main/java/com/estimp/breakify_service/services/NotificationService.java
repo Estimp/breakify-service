@@ -70,8 +70,7 @@ public class NotificationService {
                 if (!appWithNotifications.getNotifications().isEmpty()) {
                     appsWithNotifications.add(appWithNotifications);
                 }
-            }
-            else {
+            } else {
                 appsWithNotifications.add(appWithNotifications);
             }
         });
@@ -80,11 +79,8 @@ public class NotificationService {
     }
 
     private void publishNotificationToMqtt(User user, App app, Notification notification) {
-        String topic = "notifications/" + user.getUsername();
-        String message = "Nueva notificación de " + app.getName() + ": " + notification.getTitle();
-        mqttPublisherService.publish(topic, message);
-
-        topic += "/" + app.getPackageName();
+        String topic = "notifications/" + user.getUsername() + "/" + app.getPackageName();
+        String message = "Nueva notificación de " + app.getName() + ": " + notification.getTitle() + ": " + notification.getText();
         mqttPublisherService.publish(topic, message);
     }
 }
