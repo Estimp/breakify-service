@@ -1,12 +1,12 @@
 package com.estimp.breakify_service.model.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.ZonedDateTime;
 
 @Getter
-@Setter
+@AllArgsConstructor
 public class NotificationDTO {
     private String title;
 

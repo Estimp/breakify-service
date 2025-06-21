@@ -8,7 +8,7 @@ import java.time.ZonedDateTime;
 @Getter
 @AllArgsConstructor
 public class NotificationsInAppDTO {
-    private Long id;
+    private Long notificationId;
     private String title;
     private String text;
     private ZonedDateTime timestamp;
