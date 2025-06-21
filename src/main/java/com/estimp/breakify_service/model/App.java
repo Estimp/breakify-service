@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Table(name = "app", indexes = {
         @Index(name = "idx_unique_package_name", columnList = "package_name", unique = true)
@@ -27,4 +30,12 @@ public class App {
     private String packageName;
 
     private String image;
+
+    @ManyToMany
+    @JoinTable(
+            name = "app_user",
+            joinColumns = @JoinColumn(name = "app_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<User> users = new HashSet<>();
 }
