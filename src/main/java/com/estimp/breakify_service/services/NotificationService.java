@@ -7,6 +7,7 @@ import com.estimp.breakify_service.model.dto.AppWithNotificationsDTO;
 import com.estimp.breakify_service.model.dto.GetNotificationsWithUserAndAppsDTO;
 import com.estimp.breakify_service.model.dto.NotificationDTO;
 import com.estimp.breakify_service.model.dto.mapper.NotificationMapper;
+import com.estimp.breakify_service.mqtt.MqttPublisherService;
 import com.estimp.breakify_service.repository.NotificationRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
@@ -22,13 +23,16 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserService userService;
     private final AppService appService;
+    private final MqttPublisherService mqttPublisherService;
 
     public NotificationService(NotificationRepository notificationRepository,
                                UserService userService,
-                               AppService appService) {
+                               AppService appService,
+                               MqttPublisherService mqttPublisherService) {
         this.notificationRepository = notificationRepository;
         this.userService = userService;
         this.appService = appService;
+        this.mqttPublisherService = mqttPublisherService;
     }
 
     public List<Notification> findAll() {
@@ -46,7 +50,11 @@ public class NotificationService {
         App app = appService.getAppByUserAndPackageName(user, notificationDto.getPackageName());
 
         Notification notification = NotificationMapper.toEntity(notificationDto, app, user);
-        return notificationRepository.save(notification);
+        Notification savedNotification = notificationRepository.save(notification);
+
+        publishNotificationToMqtt(user, app, savedNotification);
+
+        return savedNotification;
     }
 
     public GetNotificationsWithUserAndAppsDTO findByUsername(String username, int hours, boolean showOnlyAppsWithNotifications) {
@@ -62,12 +70,17 @@ public class NotificationService {
                 if (!appWithNotifications.getNotifications().isEmpty()) {
                     appsWithNotifications.add(appWithNotifications);
                 }
-            }
-            else {
+            } else {
                 appsWithNotifications.add(appWithNotifications);
             }
         });
 
         return new GetNotificationsWithUserAndAppsDTO(user.getId(), user.getUsername(), appsWithNotifications);
+    }
+
+    private void publishNotificationToMqtt(User user, App app, Notification notification) {
+        String topic = "notifications/" + user.getUsername() + "/" + app.getPackageName();
+        String message = "Nueva notificación de " + app.getName() + ": " + notification.getTitle() + ": " + notification.getText();
+        mqttPublisherService.publish(topic, message);
     }
 }
