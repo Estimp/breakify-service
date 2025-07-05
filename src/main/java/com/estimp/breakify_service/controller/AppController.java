@@ -34,8 +34,8 @@ public class AppController {
 
     @GetMapping("/username/{username}/packageName/{packageName}")
     public ResponseEntity<?> findByUserAndPackageName(
-            @PathVariable String username,
-            @PathVariable String packageName
+        @PathVariable String username,
+        @PathVariable String packageName
     ) {
         try {
             AppWithNotificationsDTO result = appService.findByUsernameAndPackageName(username, packageName);
@@ -71,6 +71,20 @@ public class AppController {
             return appService.existsByPackageName(packageName);
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    @PutMapping("/username/{username}/packageName/{packageName}")
+    public ResponseEntity<Void> modifyPublishStatus(
+        @PathVariable String username,
+        @PathVariable String packageName,
+        @RequestParam boolean publishStatus
+    ) {
+        try {
+            appService.changePublishStatus(publishStatus, username, packageName);
+            return ResponseEntity.ok().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
         }
     }
 }

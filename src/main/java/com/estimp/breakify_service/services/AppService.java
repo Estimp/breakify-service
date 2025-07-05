@@ -10,6 +10,7 @@ import com.estimp.breakify_service.model.dto.mapper.AppMapper;
 import com.estimp.breakify_service.repository.AppRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -88,6 +89,18 @@ public class AppService {
 
     public boolean existsByPackageName(String packageName) {
         return appRepository.existsByPackageName(packageName);
+    }
+
+    @Transactional
+    public void changePublishStatus(boolean publishStatus, String username, String packageName) {
+        User user = userService.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        int updated = appRepository.updatePublishStatusByUserAndPackageName(publishStatus, packageName, user);
+
+        if (updated == 0) {
+            throw new EntityNotFoundException("App not found for given user and package");
+        }
     }
 
     private AppWithNotificationsDTO getAppWithRecentNotifications(Long appId) {
