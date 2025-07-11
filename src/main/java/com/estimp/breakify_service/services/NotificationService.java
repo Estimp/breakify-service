@@ -54,7 +54,7 @@ public class NotificationService {
         Notification notification = NotificationMapper.toEntity(notificationDto, app, user);
         Notification savedNotification = notificationRepository.save(notification);
 
-        publishNotificationToMqtt(user, app, savedNotification);
+        mqttPublisherService.publishNotificationToMqtt(user, app, savedNotification);
 
         return NotificationResponseMapper.toDto(savedNotification);
     }
@@ -78,12 +78,5 @@ public class NotificationService {
         });
 
         return new GetNotificationsWithUserAndAppsDTO(user.getId(), user.getUsername(), appsWithNotifications);
-    }
-
-    private void publishNotificationToMqtt(User user, App app, Notification notification) {
-        System.out.println("Publishing notification to mqtt broker");
-        String topic = "notifications/" + user.getUsername() + "/" + app.getPackageName();
-        String message = "Nueva notificación de " + app.getName() + ": " + notification.getTitle() + ": " + notification.getText();
-        mqttPublisherService.publish(topic, message);
     }
 }
