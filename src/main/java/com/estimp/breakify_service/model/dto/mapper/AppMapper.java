@@ -7,7 +7,6 @@ public class AppMapper {
     public static App toEntity(CreateAppDTO appDTO) {
         App app = new App();
         app.setName(appDTO.getName());
-        app.setPublished(appDTO.isPublished());
         app.setPackageName(appDTO.getPackageName());
         app.setImage(appDTO.getImage());
         return app;

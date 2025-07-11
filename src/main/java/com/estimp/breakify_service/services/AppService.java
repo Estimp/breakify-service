@@ -1,13 +1,12 @@
 package com.estimp.breakify_service.services;
 
-import com.estimp.breakify_service.model.App;
-import com.estimp.breakify_service.model.Notification;
-import com.estimp.breakify_service.model.User;
+import com.estimp.breakify_service.model.*;
 import com.estimp.breakify_service.model.dto.AppWithNotificationsDTO;
 import com.estimp.breakify_service.model.dto.CreateAppDTO;
 import com.estimp.breakify_service.model.dto.NotificationsInAppDTO;
 import com.estimp.breakify_service.model.dto.mapper.AppMapper;
 import com.estimp.breakify_service.repository.AppRepository;
+import com.estimp.breakify_service.repository.UserAppRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,11 +21,13 @@ public class AppService {
     private final AppRepository appRepository;
     private final NotificationQueryService notificationQueryService;
     private final UserService userService;
+    private final UserAppRepository userAppRepository;
 
-    public AppService(AppRepository appRepository, NotificationQueryService notificationQueryService, UserService userService) {
+    public AppService(AppRepository appRepository, NotificationQueryService notificationQueryService, UserService userService, UserAppRepository userAppRepository) {
         this.appRepository = appRepository;
         this.notificationQueryService = notificationQueryService;
         this.userService = userService;
+        this.userAppRepository = userAppRepository;
     }
 
     public List<App> findAll() {
@@ -41,15 +42,19 @@ public class AppService {
         User user = userService.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        App app = appRepository.findByUsersContainingAndPackageName(user, packageName)
+        UserApp userApp = userAppRepository.findByUserAndApp_PackageName(user, packageName)
                 .orElseThrow(() -> new EntityNotFoundException("App not found (findByUsernameAndPackageName)"));
+
+        App app = userApp.getApp();
 
         return getAppWithRecentNotifications(app.getId());
     }
 
     public App getAppByUserAndPackageName(User user, String packageName) {
-        return appRepository.findByUsersContainingAndPackageName(user, packageName)
-                .orElseThrow(() -> new EntityNotFoundException("App not found (getAppByUserAndPackageName)"));
+        UserApp userApp = userAppRepository.findByUserAndApp_PackageName(user, packageName)
+               .orElseThrow(() -> new EntityNotFoundException("App not found (getAppByUserAndPackageName)"));
+
+        return userApp.getApp();
     }
 
     public App save(CreateAppDTO createAppDTO) {
@@ -63,10 +68,17 @@ public class AppService {
         User user = userService.findByUsername(createAppDTO.getUsername())
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        app.getUsers().add(user);
-        user.getApps().add(app);
+        app = appRepository.save(app);
 
-        return appRepository.save(app);
+        UserApp userApp = new UserApp();
+        userApp.setUser(user);
+        userApp.setApp(app);
+        userApp.setId(new UserAppId(user.getId(), app.getId()));
+        userApp.setPublished(createAppDTO.isPublished());
+
+        userService.save(userApp);
+
+        return app;
     }
 
     public AppWithNotificationsDTO getAppWithRecentNotifications(Long appId, int hours) {
@@ -96,7 +108,7 @@ public class AppService {
         User user = userService.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        int updated = appRepository.updatePublishStatusByUserAndPackageName(publishStatus, packageName, user);
+        int updated = userAppRepository.updatePublishStatusByUserAndPackageName(publishStatus, packageName, user);
 
         if (updated == 0) {
             throw new EntityNotFoundException("App not found for given user and package");

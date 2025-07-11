@@ -3,6 +3,7 @@ package com.estimp.breakify_service.services;
 import com.estimp.breakify_service.model.App;
 import com.estimp.breakify_service.model.Notification;
 import com.estimp.breakify_service.model.User;
+import com.estimp.breakify_service.model.UserApp;
 import com.estimp.breakify_service.model.dto.AppWithNotificationsDTO;
 import com.estimp.breakify_service.model.dto.GetNotificationsWithUserAndAppsDTO;
 import com.estimp.breakify_service.model.dto.NotificationDTO;
@@ -18,6 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class NotificationService {
@@ -63,7 +65,11 @@ public class NotificationService {
         User user = userService.findByUsername(username)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        Set<App> apps = user.getApps();
+        Set<App> apps = user.getUserApps()
+                .stream()
+                .map(UserApp::getApp)
+                .collect(Collectors.toSet());
+
         List<AppWithNotificationsDTO> appsWithNotifications = new LinkedList<>();
 
         apps.forEach(app -> {

@@ -1,8 +1,10 @@
 package com.estimp.breakify_service.services;
 
 import com.estimp.breakify_service.model.User;
+import com.estimp.breakify_service.model.UserApp;
 import com.estimp.breakify_service.model.dto.CreateUserDTO;
 import com.estimp.breakify_service.model.dto.mapper.UserMapper;
+import com.estimp.breakify_service.repository.UserAppRepository;
 import com.estimp.breakify_service.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -12,9 +14,11 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserAppRepository userAppRepository;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, UserAppRepository userAppRepository) {
         this.userRepository = userRepository;
+        this.userAppRepository = userAppRepository;
     }
 
     public Optional<User> findById(Long id) {
@@ -28,5 +32,9 @@ public class UserService {
     public User save(CreateUserDTO createUserDTO) {
         User user = UserMapper.toEntity(createUserDTO);
         return userRepository.save(user);
+    }
+
+    public void save(UserApp userApp) {
+        userAppRepository.save(userApp);
     }
 }
