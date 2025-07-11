@@ -42,14 +42,14 @@ public class AppService {
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         App app = appRepository.findByUsersContainingAndPackageName(user, packageName)
-                .orElseThrow(() -> new EntityNotFoundException("App not found"));
+                .orElseThrow(() -> new EntityNotFoundException("App not found (findByUsernameAndPackageName)"));
 
         return getAppWithRecentNotifications(app.getId());
     }
 
     public App getAppByUserAndPackageName(User user, String packageName) {
         return appRepository.findByUsersContainingAndPackageName(user, packageName)
-                .orElseThrow(() -> new EntityNotFoundException("App not found"));
+                .orElseThrow(() -> new EntityNotFoundException("App not found (getAppByUserAndPackageName)"));
     }
 
     public App save(CreateAppDTO createAppDTO) {
@@ -57,7 +57,7 @@ public class AppService {
 
         if (existsByPackageName(app.getPackageName())) {
             app = appRepository.findByPackageName(createAppDTO.getPackageName())
-                    .orElseThrow(() -> new EntityNotFoundException("App not found"));
+                    .orElseThrow(() -> new EntityNotFoundException("App not found (save)"));
         }
 
         User user = userService.findByUsername(createAppDTO.getUsername())
@@ -76,7 +76,7 @@ public class AppService {
         ZonedDateTime cutoff = ZonedDateTime.now().minusHours(hours);
 
         App app = appRepository.findById(appId)
-                .orElseThrow(() -> new EntityNotFoundException("App not found"));
+                .orElseThrow(() -> new EntityNotFoundException("App not found (getAppWithRecentNotifications)"));
 
         List<Notification> recentNotifications = notificationQueryService.findRecentNotificationsByAppId(appId, cutoff);
 
