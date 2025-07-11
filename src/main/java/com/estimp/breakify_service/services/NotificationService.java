@@ -6,7 +6,9 @@ import com.estimp.breakify_service.model.User;
 import com.estimp.breakify_service.model.dto.AppWithNotificationsDTO;
 import com.estimp.breakify_service.model.dto.GetNotificationsWithUserAndAppsDTO;
 import com.estimp.breakify_service.model.dto.NotificationDTO;
+import com.estimp.breakify_service.model.dto.NotificationResponseDTO;
 import com.estimp.breakify_service.model.dto.mapper.NotificationMapper;
+import com.estimp.breakify_service.model.dto.mapper.NotificationResponseMapper;
 import com.estimp.breakify_service.mqtt.MqttPublisherService;
 import com.estimp.breakify_service.repository.NotificationRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -43,7 +45,7 @@ public class NotificationService {
         return notificationRepository.findById(id);
     }
 
-    public Notification save(NotificationDTO notificationDto) {
+    public NotificationResponseDTO save(NotificationDTO notificationDto) {
         User user = userService.findByUsername(notificationDto.getUsername())
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
@@ -54,7 +56,7 @@ public class NotificationService {
 
         publishNotificationToMqtt(user, app, savedNotification);
 
-        return savedNotification;
+        return NotificationResponseMapper.toDto(savedNotification);
     }
 
     public GetNotificationsWithUserAndAppsDTO findByUsername(String username, int hours, boolean showOnlyAppsWithNotifications) {
