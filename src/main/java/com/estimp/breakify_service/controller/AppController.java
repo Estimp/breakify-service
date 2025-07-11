@@ -34,8 +34,8 @@ public class AppController {
 
     @GetMapping("/username/{username}/packageName/{packageName}")
     public ResponseEntity<?> findByUserAndPackageName(
-        @PathVariable String username,
-        @PathVariable String packageName
+            @PathVariable String username,
+            @PathVariable String packageName
     ) {
         try {
             AppWithNotificationsDTO result = appService.findByUsernameAndPackageName(username, packageName);

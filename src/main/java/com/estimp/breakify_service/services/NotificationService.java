@@ -79,6 +79,7 @@ public class NotificationService {
     }
 
     private void publishNotificationToMqtt(User user, App app, Notification notification) {
+        System.out.println("Publishing notification to mqtt broker");
         String topic = "notifications/" + user.getUsername() + "/" + app.getPackageName();
         String message = "Nueva notificación de " + app.getName() + ": " + notification.getTitle() + ": " + notification.getText();
         mqttPublisherService.publish(topic, message);

@@ -1,6 +1,8 @@
 package com.estimp.breakify_service.services;
 
 import com.estimp.breakify_service.model.User;
+import com.estimp.breakify_service.model.dto.CreateUserDTO;
+import com.estimp.breakify_service.model.dto.mapper.UserMapper;
 import com.estimp.breakify_service.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +25,8 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
-    public User save(User user) {
+    public User save(CreateUserDTO createUserDTO) {
+        User user = UserMapper.toEntity(createUserDTO);
         return userRepository.save(user);
     }
 }
