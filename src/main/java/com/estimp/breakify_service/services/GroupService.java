@@ -10,6 +10,7 @@ import com.estimp.breakify_service.model.dto.mapper.GroupMapper;
 import com.estimp.breakify_service.repository.GroupRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -82,5 +83,17 @@ public class GroupService {
         Group group = groupRepository.findByUserAndName(user, groupName);
 
         return GroupMapper.toResponseDto(group);
+    }
+
+    @Transactional
+    public void changePublishStatus(boolean publishStatus, String username, String groupName) {
+        User user = userService.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        int updated = groupRepository.updatePublishStatusByUserAndGroupName(publishStatus, groupName, user);
+
+        if (updated == 0) {
+            throw new EntityNotFoundException("Group not found for given user and name");
+        }
     }
 }
