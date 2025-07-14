@@ -3,6 +3,7 @@ package com.estimp.breakify_service.controller;
 import com.estimp.breakify_service.model.User;
 import com.estimp.breakify_service.model.dto.CreateUserDTO;
 import com.estimp.breakify_service.services.UserService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,5 +34,15 @@ public class UserController {
     @PostMapping
     public ResponseEntity<User> save(@RequestBody CreateUserDTO user) {
         return ResponseEntity.ok(userService.save(user));
+    }
+
+    @PutMapping("/username/{username}")
+    public ResponseEntity<Boolean> logOut(@PathVariable String username) {
+        try {
+            return ResponseEntity.ok(userService.logOut(username));
+        }
+        catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
