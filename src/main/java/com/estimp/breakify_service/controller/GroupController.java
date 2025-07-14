@@ -5,6 +5,7 @@ import com.estimp.breakify_service.model.dto.CreateGroupDTO;
 import com.estimp.breakify_service.model.dto.GetGroupDTO;
 import com.estimp.breakify_service.model.dto.ResponseCreateGroupDTO;
 import com.estimp.breakify_service.services.GroupService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -61,6 +62,20 @@ public class GroupController {
         }
         catch (Exception e) {
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PutMapping("/username/{username}/groupName/{groupName}")
+    public ResponseEntity<Void> modifyPublishStatus(
+            @PathVariable String username,
+            @PathVariable String groupName,
+            @RequestParam boolean publishStatus
+    ) {
+        try {
+            groupService.changePublishStatus(publishStatus, username, groupName);
+            return ResponseEntity.ok().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
         }
     }
 }
