@@ -29,6 +29,6 @@ public class User {
 
     private String session;
 
-    @ManyToMany(mappedBy = "users")
-    private Set<App> apps = new HashSet<>();
+    @OneToMany(mappedBy = "user")
+    private Set<UserApp> userApps = new HashSet<>();
 }

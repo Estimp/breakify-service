@@ -24,18 +24,11 @@ public class App {
 
     private String name;
 
-    private boolean published;
-
     @Column(name = "package_name")
     private String packageName;
 
     private String image;
 
-    @ManyToMany
-    @JoinTable(
-            name = "app_user",
-            joinColumns = @JoinColumn(name = "app_id"),
-            inverseJoinColumns = @JoinColumn(name = "user_id")
-    )
-    private Set<User> users = new HashSet<>();
+    @OneToMany(mappedBy = "app")
+    private Set<UserApp> userApps = new HashSet<>();
 }
