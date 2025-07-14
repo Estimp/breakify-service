@@ -1,6 +1,8 @@
 package com.estimp.breakify_service.controller;
 
 import com.estimp.breakify_service.model.Group;
+import com.estimp.breakify_service.model.dto.CreateGroupDTO;
+import com.estimp.breakify_service.model.dto.ResponseCreateGroupDTO;
 import com.estimp.breakify_service.services.GroupService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +32,7 @@ public class GroupController {
     }
 
     @PostMapping
-    public ResponseEntity<Group> save(@RequestBody Group group) {
-        return ResponseEntity.ok(groupService.save(group));
+    public ResponseEntity<ResponseCreateGroupDTO> save(@RequestBody CreateGroupDTO groupDto) {
+        return ResponseEntity.ok(groupService.save(groupDto));
     }
 }
