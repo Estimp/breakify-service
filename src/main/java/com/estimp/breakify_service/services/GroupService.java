@@ -4,16 +4,14 @@ import com.estimp.breakify_service.model.App;
 import com.estimp.breakify_service.model.Group;
 import com.estimp.breakify_service.model.User;
 import com.estimp.breakify_service.model.dto.CreateGroupDTO;
+import com.estimp.breakify_service.model.dto.GetGroupDTO;
 import com.estimp.breakify_service.model.dto.ResponseCreateGroupDTO;
 import com.estimp.breakify_service.model.dto.mapper.GroupMapper;
 import com.estimp.breakify_service.repository.GroupRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class GroupService {
@@ -36,11 +34,15 @@ public class GroupService {
         return groupRepository.findById(id);
     }
 
+    public void deleteById(Long id) {
+        groupRepository.deleteById(id);
+    }
+
     public ResponseCreateGroupDTO save(CreateGroupDTO groupDto) {
         User user = userService.findByUsername(groupDto.getUsername())
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
-        Set<App> apps =  new HashSet<>();
+        Set<App> apps = new HashSet<>();
         for (String packageName : groupDto.getAppPackageNames()) {
             try {
                 App app = appService.getAppByUserAndPackageName(user, packageName);
@@ -58,7 +60,27 @@ public class GroupService {
         return GroupMapper.toDto(groupFromDb);
     }
 
-    public void deleteById(Long id) {
-        groupRepository.deleteById(id);
+    public Set<GetGroupDTO> findByUsername(String username) {
+        User user = userService.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        Set<Group> groups = groupRepository.findByUser(user);
+
+        Set<GetGroupDTO> groupsDto = new TreeSet<>(Comparator.comparingLong(GetGroupDTO::getId));
+
+        for (Group group : groups) {
+            groupsDto.add(GroupMapper.toResponseDto(group));
+        }
+
+        return groupsDto;
+    }
+
+    public GetGroupDTO findOneByUsernameAndGroupName(String username, String groupName) {
+        User user = userService.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        Group group = groupRepository.findByUserAndName(user, groupName);
+
+        return GroupMapper.toResponseDto(group);
     }
 }

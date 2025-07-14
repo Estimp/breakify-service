@@ -4,6 +4,7 @@ import com.estimp.breakify_service.model.App;
 import com.estimp.breakify_service.model.Group;
 import com.estimp.breakify_service.model.User;
 import com.estimp.breakify_service.model.dto.CreateGroupDTO;
+import com.estimp.breakify_service.model.dto.GetGroupDTO;
 import com.estimp.breakify_service.model.dto.ResponseCreateGroupDTO;
 
 import java.util.Set;
@@ -29,5 +30,16 @@ public class GroupMapper {
         responseCreateGroupDto.setUsername(group.getUser().getUsername());
         responseCreateGroupDto.setAppPackageNames(group.getApps().stream().map(App::getPackageName).collect(Collectors.toSet()));
         return responseCreateGroupDto;
+    }
+
+    public static GetGroupDTO toResponseDto(Group group) {
+        GetGroupDTO getGroupDTO = new GetGroupDTO();
+        getGroupDTO.setId(group.getId());
+        getGroupDTO.setName(group.getName());
+        getGroupDTO.setDescription(group.getDescription());
+        getGroupDTO.setPublished(group.isPublished());
+        getGroupDTO.setUsername(group.getUser().getUsername());
+        getGroupDTO.setAppPackageNames(group.getApps().stream().map(App::getPackageName).collect(Collectors.toSet()));
+        return getGroupDTO;
     }
 }
