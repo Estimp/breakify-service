@@ -33,6 +33,11 @@ public class GroupController {
 
     @PostMapping
     public ResponseEntity<ResponseCreateGroupDTO> save(@RequestBody CreateGroupDTO groupDto) {
-        return ResponseEntity.ok(groupService.save(groupDto));
+        try {
+            return ResponseEntity.ok(groupService.save(groupDto));
+        }
+        catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }
